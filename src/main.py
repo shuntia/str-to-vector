@@ -7,13 +7,13 @@ from vector_pipeline import VectorPipeline
 import joblib
 import argparse
 import log as logging_util
-from log import log
 
-global app, graph, pipe
+global app, graph, pipe, log
 
 
 def main():
-    global app, graph, pipe
+    global app, graph, pipe, log
+    log = logging_util.get_colored_logger("logger")
     logging_util.get_colored_logger(name="plotter")
 
     app = dash.Dash(__name__)
