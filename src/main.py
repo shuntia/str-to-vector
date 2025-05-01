@@ -6,15 +6,14 @@ import plotly.graph_objects as go
 from vector_pipeline import VectorPipeline
 import joblib
 import argparse
-import log as logging_util
+# import log as logging_util
 
 global app, graph, pipe, log
 
 
 def main():
     global app, graph, pipe, log
-    log = logging_util.get_colored_logger("logger")
-    logging_util.get_colored_logger(name="plotter")
+    # log = logging_util.get_colored_logger("logger")
 
     app = dash.Dash(__name__)
 
@@ -33,7 +32,7 @@ def main():
     try:
         pipe = joblib.load("umap_prefit2.pkl")
     except FileNotFoundError:
-        log.error("failed to find umap_prefit2.pkl. Retraining model...")
+        # log.error("failed to find umap_prefit2.pkl. Retraining model...")
         import fit_corpus
 
         fit_corpus.load()
@@ -66,7 +65,8 @@ def main():
                         placeholder="Enter text to vectorize",
                         style="",
                     ),
-                    html.Button("Vectorize", id="vectorize-button", n_clicks=0),
+                    html.Button(
+                        "Vectorize", id="vectorize-button", n_clicks=0),
                     html.Button("Clear", id="clear-button", n_clicks=0),
                 ],
                 style={
@@ -79,7 +79,7 @@ def main():
             ),
         ]
     )
-    log.debug("Starting interactive app UI...")
+    # log.debug("Starting interactive app UI...")
     app.run(debug=True)
 
 
@@ -102,7 +102,8 @@ def update_graph(clear_clicks, vectorize_clicks, value):
         return graph.fig
     elif button_id == "vectorize-button" and value:
         vectorized = pipe.vectorize([value])
-        row = pd.DataFrame({"raw_texts": [value], "embeddings": [vectorized[0]]})
+        row = pd.DataFrame(
+            {"raw_texts": [value], "embeddings": [vectorized[0]]})
         df = pd.concat([df, row], ignore_index=True)
         graph.graph_vector(vectorized[0], df.iloc[-1]["raw_texts"])
         graph.fig.update_layout(uirevision="constant")
