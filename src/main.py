@@ -5,51 +5,82 @@ from dash import dcc, html, Input, Output, State
 import plotly.graph_objects as go
 from vector_pipeline import VectorPipeline
 import joblib
+import argparse
+import log as logging_util
+from log import log
 
-USE_3D = True
-
-if USE_3D:
-    from plotly_graph import Graph3D as Graph
-
-    n_components = 3
-else:
-    from plotly_graph import Graph2D as Graph
-
-    n_components = 2
-
-app = dash.Dash(__name__)
-graph = Graph(True)
-pipe = joblib.load("umap_prefit2.pkl")
-# pipe = VectorPipeline(n_components=n_components)
-df = pd.DataFrame({"raw_texts": [], "embeddings": []})
+global app, graph, pipe
 
 
-app.layout = html.Div(
-    [
-        dcc.Input(
-            id="input-text",
-            type="text",
-            placeholder="Enter text to vectorize",
-        ),
-        html.Button("Vectorize", id="vectorize-button", n_clicks=0),
-        html.Button("Clear", id="clear-button", n_clicks=0),
-        html.Div(
-            [
-                dcc.Graph(
-                    id="graph",
-                    figure=graph.fig,
-                    style={"height": "100vh", "width": "98vw"},
-                ),
-            ],
-            style={
-                "height": "100vh",
-                "width": "98vw",
-                "margin": 0,
-                "padding": 0,
-            },
-        ),
-    ]
-)
+def main():
+    global app, graph, pipe
+    logging_util.get_colored_logger(name="plotter")
+
+    app = dash.Dash(__name__)
+
+    USE_3D = True
+
+    if USE_3D:
+        from plotly_graph import Graph3D as Graph
+
+        n_components = 3
+    else:
+        from plotly_graph import Graph2D as Graph
+
+        n_components = 2
+
+    graph = Graph(True)
+    try:
+        pipe = joblib.load("umap_prefit2.pkl")
+    except FileNotFoundError:
+        log.error("failed to find umap_prefit2.pkl. Retraining model...")
+        import fit_corpus
+
+        fit_corpus.load()
+
+    # pipe = VectorPipeline(n_components=n_components)
+    df = pd.DataFrame({"raw_texts": [], "embeddings": []})
+
+    app.layout = html.Div(
+        [
+            html.Div(
+                [
+                    dcc.Graph(
+                        id="graph",
+                        figure=graph.fig,
+                        style={"height": "90vh", "width": "100vw"},
+                    ),
+                ],
+                style={
+                    "height": "100vh",
+                    "width": "100vw",
+                    "margin": 0,
+                    "padding": 0,
+                },
+            ),
+            html.Div(
+                [
+                    dcc.Input(
+                        id="input-text",
+                        type="text",
+                        placeholder="Enter text to vectorize",
+                        style="",
+                    ),
+                    html.Button("Vectorize", id="vectorize-button", n_clicks=0),
+                    html.Button("Clear", id="clear-button", n_clicks=0),
+                ],
+                style={
+                    "display": "flex",
+                    "align-items": "center",
+                    "height": "10vh",
+                    "width": "100vw",
+                    "flex-grow": 1,
+                },
+            ),
+        ]
+    )
+    log.debug("Starting interactive app UI...")
+    app.run(debug=True)
 
 
 @app.callback(
@@ -81,4 +112,4 @@ def update_graph(clear_clicks, vectorize_clicks, value):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    main()
