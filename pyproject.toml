@@ -6,8 +6,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "dash>=3.0.4",
+    "dataset>=1.6.2",
+    "datasets>=3.5.1",
     "matplotlib>=3.10.1",
     "pandas>=2.2.3",
     "plotly>=6.0.1",
     "scikit-learn>=1.6.1",
+    "sentence-transformers>=4.1.0",
+    "umap-learn>=0.5.7",
 ]
