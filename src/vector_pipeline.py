@@ -1,6 +1,6 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
-from embed import SBert, Distilberta
+from embed import HFEmbed, STEmbed, Distilberta
 import umap
 from sklearn.pipeline import Pipeline
 from sentence_transformers import SentenceTransformer

@@ -1831,6 +1831,7 @@ dependencies = [
     { name = "plotly" },
     { name = "scikit-learn" },
     { name = "sentence-transformers" },
+    { name = "torch" },
     { name = "umap-learn" },
 ]
 
@@ -1844,6 +1845,7 @@ requires-dist = [
     { name = "plotly", specifier = ">=6.0.1" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "sentence-transformers", specifier = ">=4.1.0" },
+    { name = "torch", specifier = ">=2.7.0" },
     { name = "umap-learn", specifier = ">=0.5.7" },
 ]
 

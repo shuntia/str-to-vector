@@ -42,7 +42,6 @@ class Graph3D:
             )
 
         self.fig.update_layout(
-            title="Sentence Vectorization",
             scene=dict(
                 xaxis=dict(
                     title="" if axis else "x",
@@ -66,7 +65,7 @@ class Graph3D:
             margin=dict(l=0, r=0, b=0, t=40),
         )
 
-    def graph_vector(self, vector):
+    def graph_vector(self, vector, text):
         x, y, z = vector
 
         self.fig.add_trace(
@@ -77,7 +76,9 @@ class Graph3D:
                 mode="lines+markers",
                 line=dict(width=6),
                 marker=dict(size=4),
-                name=f"v = ({x}, {y}, {z})",
+                name=text,
+                text=f"v = ({x:.2f}, {y:.2f}, {z:.2f})",
+                hoverinfo="text+name",
             )
         )
 
@@ -139,7 +140,6 @@ class Graph3D:
             )
         )
         self.fig.update_layout(
-            title="Sentence Vectorization",
             scene=dict(
                 xaxis=dict(
                     title="x",

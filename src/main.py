@@ -38,12 +38,12 @@ app.layout = html.Div(
                 dcc.Graph(
                     id="graph",
                     figure=graph.fig,
-                    style={"height": "100vh", "width": "100vw"},
+                    style={"height": "100vh", "width": "98vw"},
                 ),
             ],
             style={
                 "height": "100vh",
-                "width": "100vw",
+                "width": "98vw",
                 "margin": 0,
                 "padding": 0,
             },
@@ -73,7 +73,7 @@ def update_graph(clear_clicks, vectorize_clicks, value):
         vectorized = pipe.vectorize([value])
         row = pd.DataFrame({"raw_texts": [value], "embeddings": [vectorized[0]]})
         df = pd.concat([df, row], ignore_index=True)
-        graph.graph_vector(vectorized[0])
+        graph.graph_vector(vectorized[0], df.iloc[-1]["raw_texts"])
         graph.fig.update_layout(uirevision="constant")
         print(df.head())
         return graph.fig
