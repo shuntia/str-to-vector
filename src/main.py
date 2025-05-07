@@ -19,6 +19,7 @@ else:
 
 app = dash.Dash(__name__)
 graph = Graph(True)
+graph.fig.update_layout(clickmode="event+select", uirevision="constant")
 pipe = joblib.load("umap_prefit2.pkl")
 # pipe = VectorPipeline(n_components=n_components)
 df = pd.DataFrame({"raw_texts": [], "embeddings": []})
@@ -26,6 +27,7 @@ df = pd.DataFrame({"raw_texts": [], "embeddings": []})
 
 app.layout = html.Div(
     [
+        dcc.Store(id="selected-traces", data=[]),
         dcc.Input(
             id="input-text",
             type="text",
@@ -33,6 +35,9 @@ app.layout = html.Div(
         ),
         html.Button("Vectorize", id="vectorize-button", n_clicks=0),
         html.Button("Clear", id="clear-button", n_clicks=0),
+        html.Br(),
+        html.Button("Calculate similarity", id="similarity-button", n_clicks=0),
+        html.Div(id="similarity-output"),
         html.Div(
             [
                 dcc.Graph(
@@ -53,12 +58,12 @@ app.layout = html.Div(
 
 
 @app.callback(
-    Output("graph", "figure"),
+    Output("graph", "figure", allow_duplicate=True),
     [Input("clear-button", "n_clicks"), Input("vectorize-button", "n_clicks")],
-    [State("input-text", "value")],
+    [State("input-text", "value"), State("selected-traces", "data")],
     prevent_initial_call=True,
 )
-def update_graph(clear_clicks, vectorize_clicks, value):
+def update_graph(clear_clicks, vectorize_clicks, value, selected):
     ctx = dash.callback_context
     if not ctx.triggered:
         return graph.fig
@@ -76,8 +81,37 @@ def update_graph(clear_clicks, vectorize_clicks, value):
         graph.graph_vector(vectorized[0], df.iloc[-1]["raw_texts"])
         graph.fig.update_layout(uirevision="constant")
         print(df.head())
-        return graph.fig
+    
+    for i, tr in enumerate(graph.fig.data):
+        tr.opacity = 1.0 if (selected and i in selected) else 0.2
+
     return graph.fig
+
+
+@app.callback(
+    [
+        Output("graph", "figure", allow_duplicate=True),
+        Output("selected-traces", "data"),
+    ],
+    Input("graph", "clickData"),
+    [State("graph", "figure"), State("selected-traces", "data")],
+    prevent_initial_call=True,
+)
+def select_trace(clickData, figure, selected):
+    idx = clickData["points"][0]["curveNumber"]
+    # toggle in store
+    if idx in selected:
+        selected.remove(idx)
+    else:
+        selected.append(idx)
+
+    # restyle all traces
+    for i, tr in enumerate(figure["data"]):
+        tr["opacity"] = 1.0 if i in selected else 0.2
+
+    # figure["layout"]["uirevision"] = "constant"
+
+    return figure, selected
 
 
 if __name__ == "__main__":
