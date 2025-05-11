@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "dash>=3.0.4",
+    "dash-bootstrap-components>=2.0.2",
     "dataset>=1.6.2",
     "datasets>=3.5.1",
     "matplotlib>=3.10.1",

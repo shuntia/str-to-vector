@@ -3,6 +3,7 @@ import numpy as np
 import dash
 from dash import dcc, html, Input, Output, State
 import plotly.graph_objects as go
+import dash_bootstrap_components as dbc
 from vector_pipeline import VectorPipeline
 import joblib
 
@@ -17,7 +18,7 @@ else:
 
     n_components = 2
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 graph = Graph(True)
 graph.fig.update_layout(clickmode="event+select", uirevision="constant")
 pipe = joblib.load("umap_prefit2.pkl")
@@ -27,25 +28,39 @@ pipe = joblib.load("umap_prefit2.pkl")
 df = pd.DataFrame({"raw_texts": [], "embeddings": []})
 
 
-app.layout = html.Div(
+app.layout = dbc.Container(
     [
         dcc.Store(id="selected-traces", data=[]),
         dcc.Store(id="df-store", data=[]),
-        dcc.Input(id="input-text", type="text", placeholder="Enter text to vectorize"),
-        html.Button("Vectorize", id="vectorize-button", n_clicks=0),
-        html.Button("Clear", id="clear-button", n_clicks=0),
-        html.Br(),
-        html.Button("Calculate similarity", id="similarity-button", n_clicks=0),
-        html.Div(id="similarity-output"),
-        html.Div(
-            dcc.Graph(
-                id="graph",
-                figure=graph.fig,
-                style={"height": "100vh", "width": "98vw"},
-            ),
-            style={"height": "100vh", "width": "98vw", "margin": 0, "padding": 0},
+        
+        dcc.Graph(
+            id="graph",
+            figure=graph.fig,
+            style={"height": "80vh", "width": "98vw"},
         ),
-    ]
+
+        dbc.Row(
+            dbc.Col(
+                dbc.Textarea(
+                    id="input-text",
+                    placeholder="Enter text to vectorize",
+                    style={"height": 60, "fontSize": 30},
+                ),
+            ),
+            className="mb-2 mt-3",
+        ),
+        
+        dbc.Row(
+            [
+                dbc.Col(dbc.Button("Vectorize", id="vectorize-button", n_clicks=0, className="me-1"), width="auto"),
+                dbc.Col(dbc.Button("Clear", id="clear-button", n_clicks=0, className="me-1"), width="auto"),
+                dbc.Col(dbc.Button("Calculate similarity", id="similarity-button", n_clicks=0, className="me-1"), width="auto"),
+                dbc.Col(html.Div(id="similarity-output", style={"fontSize": 24}), width="auto", className="align-self-center"),
+            ],
+            className="mb-3",
+        ),
+    ],
+    fluid=True,
 )
 
 # Global redraw from state callback
@@ -116,6 +131,8 @@ def add_vector(n_clicks, value, df):
 )
 def toggle_selection(clickData, selected):
     idx = clickData["points"][0]["curveNumber"]
+    if idx < 3:
+        return selected
     if idx in selected:
         selected.remove(idx)
     else:
@@ -131,7 +148,7 @@ def toggle_selection(clickData, selected):
 )
 def compute_similarity(n_clicks, df, selected):
     if len(selected) != 2:
-        return "Select exactly 2 vectors"
+        return f"Select exactly 2 vectors (You have {len(selected)} selected)"
     
     if not n_clicks:
         return "Click calculate similarity"
@@ -141,7 +158,7 @@ def compute_similarity(n_clicks, df, selected):
     vec2 = df[selected[1] - index_offset]["embeddings"]
 
     similarity = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
-    return f"Similarity: {similarity:.2f}"
+    return f"Similarity: {similarity}"
 
 if __name__ == "__main__":
     app.run(debug=True)
