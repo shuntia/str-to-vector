@@ -3,14 +3,11 @@ from vector_pipeline import VectorPipeline
 import joblib
 from datasets import load_dataset, concatenate_datasets
 import nltk
-
-
 imdb_dataset = load_dataset("imdb")
 corpus = imdb_dataset["train"]["text"] + imdb_dataset["test"]["text"]
 
 def fit_umap():
 # corpus = fetch_20newsgroups(remove=("headers", "footers", "quotes")).data
-
 
     pipe = VectorPipeline(n_components=3)
     pipe.fit(corpus)
@@ -75,3 +72,4 @@ def fit_umap_wikitext():
 
 if __name__ == "__main__":
     fit_umap_wikitext()
+

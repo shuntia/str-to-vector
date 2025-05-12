@@ -6,6 +6,8 @@ import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from vector_pipeline import VectorPipeline
 import joblib
+import argparse
+# import log as logging_util
 
 USE_3D = True
 
@@ -92,7 +94,6 @@ def redraw(df, selected):
             ),
         )
     )
-
     return graph.fig
 
 # Clear button callback
@@ -161,4 +162,4 @@ def compute_similarity(n_clicks, df, selected):
     return f"Similarity: {similarity}"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    main()
