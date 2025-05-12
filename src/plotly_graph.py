@@ -67,7 +67,6 @@ class Graph3D:
 
     def graph_vector(self, vector, text):
         x, y, z = vector
-
         self.fig.add_trace(
             go.Scatter3d(
                 x=[0, x],
